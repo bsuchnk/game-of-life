@@ -1,6 +1,10 @@
 package main
 
-import "github.com/go-gl/gl/v3.3-core/gl"
+import (
+	"math/rand"
+
+	"github.com/go-gl/gl/v3.3-core/gl"
+)
 
 type cell struct {
 	drawable uint32 // VAO
@@ -9,6 +13,7 @@ type cell struct {
 	aliveNext bool
 
 	ageDead int
+	color   float32
 
 	x int
 	y int
@@ -24,7 +29,7 @@ func (c *cell) draw() {
 }
 
 func (c *cell) getNextState(cells [][]*cell) {
-	n := c.countNeighbours(cells)
+	n, col := c.countNeighbours(cells)
 	if c.alive {
 		if n == 2 || n == 3 {
 			c.aliveNext = true
@@ -34,6 +39,11 @@ func (c *cell) getNextState(cells [][]*cell) {
 	} else {
 		if n == 3 {
 			c.aliveNext = true
+			col = col + rand.Float32()*16 - 8 + 360
+			if col >= 360 {
+				col -= 360
+			}
+			c.color = col
 		} else {
 			c.aliveNext = false
 		}
@@ -50,8 +60,10 @@ func (c *cell) updateState() {
 	}
 }
 
-func (c *cell) countNeighbours(cells [][]*cell) int {
-	var count int
+func (c *cell) countNeighbours(cells [][]*cell) (int32, float32) {
+	var count int32
+	var color float32
+	var colors []float32
 
 	for i := c.x - 1; i <= c.x+1; i++ {
 		for j := c.y - 1; j <= c.y+1; j++ {
@@ -62,22 +74,46 @@ func (c *cell) countNeighbours(cells [][]*cell) int {
 			if i >= 0 && i < rows && j >= 0 && j < columns {
 				if cells[i][j].alive {
 					count++
+					color += cells[i][j].color
+					colors = append(colors, cells[i][j].color)
 				}
 			}
 		}
 	}
+	if count == 0 {
+		return 0, 0
+	}
 
-	return count
+	if count == 2 {
+		return count, colors[rand.Int31()%2]
+	}
+
+	return count, color / float32(count)
 }
 
-var (
-	square = []float32{
-		0, 1, 0,
-		0, 0, 0,
-		1, 0, 0,
+func newCell(x, y int) *cell {
+	points := make([]float32, len(square))
+	copy(points, square)
 
-		0, 1, 0,
-		1, 1, 0,
-		1, 0, 0,
+	var rowRes float32 = 2.0 / rows
+	var colRes float32 = 2.0 / columns
+
+	for i := 0; i < len(points); i++ {
+		switch i % 3 {
+		case 0:
+			points[i] = -1 + points[i]*rowRes + float32(x)*rowRes
+		case 1:
+			points[i] = -1 + points[i]*colRes + float32(y)*colRes
+		}
 	}
-)
+
+	return &cell{
+		drawable: makeVao(points),
+
+		x: x,
+		y: y,
+
+		ageDead: 20,
+		color:   rand.Float32() * 360,
+	}
+}

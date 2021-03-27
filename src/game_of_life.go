@@ -11,18 +11,6 @@ import (
 	"github.com/go-gl/glfw/v3.2/glfw"
 )
 
-const (
-	fps = 15
-
-	width  = 640
-	height = 640
-
-	rows    = 256
-	columns = 256
-
-	threshold = 0.15
-)
-
 func main() {
 	runtime.LockOSThread()
 
@@ -30,7 +18,7 @@ func main() {
 	defer glfw.Terminate()
 
 	program := initOpenGL()
-	gl.ClearColor(0.0, 0.0, 1.0, 1.0)
+	gl.ClearColor(0.2, 0.1, 0.0, 1.0)
 
 	cells := makeCells()
 
@@ -63,6 +51,8 @@ func draw(cells [][]*cell, window *glfw.Window, program uint32) {
 		for _, c := range row {
 			ageUni := gl.GetUniformLocation(program, gl.Str("age\x00"))
 			gl.Uniform1i(ageUni, int32(c.ageDead))
+			colUni := gl.GetUniformLocation(program, gl.Str("H\x00"))
+			gl.Uniform1f(colUni, c.color)
 
 			c.draw()
 		}
@@ -106,30 +96,6 @@ func makeCells() [][]*cell {
 	return cells
 }
 
-func newCell(x, y int) *cell {
-	points := make([]float32, len(square))
-	copy(points, square)
-
-	var rowRes float32 = 2.0 / rows
-	var colRes float32 = 2.0 / columns
-
-	for i := 0; i < len(points); i++ {
-		switch i % 3 {
-		case 0:
-			points[i] = -1 + points[i]*rowRes + float32(x)*rowRes
-		case 1:
-			points[i] = -1 + points[i]*colRes + float32(y)*colRes
-		}
-	}
-
-	return &cell{
-		drawable: makeVao(points),
-
-		x: x,
-		y: y,
-	}
-}
-
 //--- opengl init ---
 
 func initGlfw() *glfw.Window {
@@ -147,7 +113,7 @@ func initGlfw() *glfw.Window {
 		panic(err)
 	}
 	window.MakeContextCurrent()
-	//window.SetPos(100, 100)
+	window.SetPos(100, 100)
 
 	return window
 }

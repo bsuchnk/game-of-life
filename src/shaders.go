@@ -8,16 +8,40 @@ in vec3 vp;
 out vec3 col_pos;
 
 uniform int age;
+uniform float H;
+
+vec3 h2rgb() { // H = [0, 360)
+	float h = H / 60.0;
+	float f = h - floor(h);
+	float Q = 1 - f; // V*(1-S*fract) = 1*(1-1*fract) = 1-fract
+	float T = f;     // V*(1-S*(1-fract)) = 1*(1-1*(1-fract)) = fract
+
+	if (0 <= h && h < 1)
+		return vec3(1, T, 0);
+	if (1 <= h && h < 2)
+		return vec3(Q, 1, T);
+	if (2 <= h && h < 3)
+		return vec3(0, 1, T);
+	if (3 <= h && h < 4)
+		return vec3(0, Q, 1);
+	if (4 <= h && h < 5)
+		return vec3(T, 0, 1);
+	if (5 <= h && h < 6)
+		return vec3(1, 0, Q);
+
+	return vec3(0,0,0);
+}
 
 void main() {
 	gl_Position = vec4(vp, 1.0);
 
+	vec3 rgb = h2rgb();
 	if (age == 0)
-		col_pos = vec3(1.0, 1.0, 0.0);
+		col_pos = rgb;
 	else {
-		float r = max(0.5 - age/20.0, 0);
-		float g = max(0.5 - age/10.0, 0);
-		float b = min(age/20.0, 1);
+		float r = 0.2 + 0.5*(1-rgb.x)/age;
+		float g = 0.1 + 0.5*(1-rgb.y)/age;
+		float b = 0.5*(1-rgb.z)/age;
 		col_pos = vec3(r, g, b);
 	}
 }
