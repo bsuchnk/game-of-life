@@ -84,11 +84,13 @@ func (c *cell) countNeighbours(cells [][]*cell) (int32, float32) {
 		return 0, 0
 	}
 
-	if count == 2 {
-		return count, colors[rand.Int31()%2]
-	}
+	// if count == 2 {
+	// 	return count, colors[rand.Int31()%2]
+	// }
 
-	return count, color / float32(count)
+	// return count, color / float32(count)
+
+	return count, colors[rand.Int31()%count]
 }
 
 func newCell(x, y int) *cell {

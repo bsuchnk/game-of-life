@@ -6,8 +6,8 @@ const (
 	width  = 720
 	height = 360
 
-	rows    = 360
-	columns = 180
+	rows    = 256
+	columns = 128
 
 	threshold = 0.15
 )
