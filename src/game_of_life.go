@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"math/rand"
 	"runtime"
@@ -12,6 +13,14 @@ import (
 )
 
 func main() {
+	flag.IntVar(&width, "w", 512, "width")
+	flag.IntVar(&height, "h", 512+48, "height")
+	flag.IntVar(&rows, "r", 128, "rows")
+	flag.IntVar(&columns, "c", 128, "columns")
+	flag.IntVar(&fps, "fps", 15, "fps of the simulation")
+	flag.Float64Var(&threshold, "t", 0.15, "randomness [0-1]")
+	flag.Parse()
+
 	runtime.LockOSThread()
 
 	window := initGlfw()

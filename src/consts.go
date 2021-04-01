@@ -1,18 +1,16 @@
 package main
 
-const (
-	fps = 15
-
+var (
 	width  = 720
 	height = 360
 
 	rows    = 256
 	columns = 128
 
-	threshold = 0.15
-)
+	fps = 15
 
-var (
+	threshold = 0.15
+
 	square = []float32{
 		0, 1, 0,
 		0, 0, 0,

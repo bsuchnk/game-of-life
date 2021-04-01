@@ -39,9 +39,11 @@ func (c *cell) getNextState(cells [][]*cell) {
 	} else {
 		if n == 3 {
 			c.aliveNext = true
-			col = col + rand.Float32()*16 - 8 + 360
+			col = col + rand.Float32()*16 - 8
 			if col >= 360 {
 				col -= 360
+			} else if col < 0 {
+				col += 360
 			}
 			c.color = col
 		} else {
@@ -97,8 +99,8 @@ func newCell(x, y int) *cell {
 	points := make([]float32, len(square))
 	copy(points, square)
 
-	var rowRes float32 = 2.0 / rows
-	var colRes float32 = 2.0 / columns
+	var rowRes float32 = 2.0 / float32(rows)
+	var colRes float32 = 2.0 / float32(columns)
 
 	for i := 0; i < len(points); i++ {
 		switch i % 3 {
